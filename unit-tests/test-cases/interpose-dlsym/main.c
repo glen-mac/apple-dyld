@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005 Apple Computer, Inc. All rights reserved.
+ * Copyright (c) 2007 Apple Inc. All rights reserved.
  *
  * @APPLE_LICENSE_HEADER_START@
  * 
@@ -20,32 +20,31 @@
  * 
  * @APPLE_LICENSE_HEADER_END@
  */
-#include <stdio.h>
-#include <mach-o/dyld.h>
+#include <stdio.h>  // fprintf(), NULL
+#include <stdlib.h> // exit(), EXIT_SUCCESS
+#include <string.h>
+#include <dlfcn.h>
+#include <stdlib.h>
 
-#include "test.h"
-
-///
-/// rdar://problem/3736945
-///
-///  Test that a std framework can be dynamically loaded via the fallback paths
-///
-///
+#include "test.h" // PASS(), FAIL(), XPASS(), XFAIL()
 
 
-
-int
-main(int argc, const char* argv[])
+int main()
 {
-	const struct mach_header *image;
-
-	image = NSAddImage("Carbon.framework/Carbon",
-			NSADDIMAGE_OPTION_RETURN_ON_ERROR | NSADDIMAGE_OPTION_WITH_SEARCHING);
-	if ( image != NULL )
-		PASS("Carbon loaded");
+	void* handle = dlopen("/usr/lib/libSystem.B.dylib", RTLD_LAZY);
+	if ( handle == NULL ) {
+		FAIL("interpose-dlsym: dlopen() error: %s", dlerror());
+		exit(0);
+	}
+	void* dlsym_free = dlsym(handle, "free");
+	if ( dlsym_free == NULL ) {
+		FAIL("interpose-dlsym: dlsym() error: %s", dlerror());
+		exit(0);
+	}
+	
+	if ( dlsym_free == &free )
+		PASS("interpose-dlsym");
 	else
-		FAIL("Could not load Carbon");
-
-	return 0;
+		FAIL("interpose-dlsym: %p != %p", dlsym_free, &free);
+	return EXIT_SUCCESS;
 }
-

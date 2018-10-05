@@ -20,32 +20,20 @@
  * 
  * @APPLE_LICENSE_HEADER_END@
  */
-#include <stdio.h>
-#include <mach-o/dyld.h>
+#include <stdio.h>  // fprintf(), NULL
+#include <stdlib.h> // exit(), EXIT_SUCCESS
+#include <string.h>
 
-#include "test.h"
+#include "test.h" // PASS(), FAIL(), XPASS(), XFAIL()
+#include "foo.h"
 
-///
-/// rdar://problem/3736945
-///
-///  Test that a std framework can be dynamically loaded via the fallback paths
-///
-///
-
-
-
-int
-main(int argc, const char* argv[])
+int main()
 {
-	const struct mach_header *image;
-
-	image = NSAddImage("Carbon.framework/Carbon",
-			NSADDIMAGE_OPTION_RETURN_ON_ERROR | NSADDIMAGE_OPTION_WITH_SEARCHING);
-	if ( image != NULL )
-		PASS("Carbon loaded");
-	else
-		FAIL("Could not load Carbon");
-
-	return 0;
+	const char* x = foo("seed");
+  
+	if ( strcmp(x, "foo3(foo2(foo1(foo(seed))))") == 0 )
+		PASS("interpose-chained");
+	else 
+		FAIL("interpose-chained %s", x);
+	return EXIT_SUCCESS;
 }
-
