@@ -60,7 +60,7 @@ static void* work(void* arg)
 int main()
 {
 	dlsym(RTLD_DEFAULT, "foobar");
-	fprintf(stderr, "%s\n", dlerror());
+	//fprintf(stderr, "%s\n", dlerror());
 
 	pthread_t worker1;
 	if ( pthread_create(&worker1, NULL, work, "/frazzle/bar") != 0 ) {
@@ -81,11 +81,11 @@ int main()
 	}
 	
 	void* result;
-	fprintf(stderr, "waiting for worker 1\n");
+	//fprintf(stderr, "waiting for worker 1\n");
 	pthread_join(worker1, &result);
-	fprintf(stderr, "waiting for worker 2\n");
+	//fprintf(stderr, "waiting for worker 2\n");
 	pthread_join(worker2, &result);
-	fprintf(stderr, "waiting for worker 3\n");
+	//fprintf(stderr, "waiting for worker 3\n");
 	pthread_join(worker3, &result);
 	
 	PASS("dlerror-thread-test");
